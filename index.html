@@ -297,6 +297,28 @@ function setDot(num, state, html) {
   if (html) document.getElementById("msg" + num).innerHTML = html;
 }
 
+async function resizeImage(file) {
+  return new Promise((res) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const MAX = 1600;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(blob => res(blob), "image/jpeg", 0.85);
+    };
+    img.src = url;
+  });
+}
+
 async function fileToBase64(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
@@ -324,10 +346,14 @@ async function runAll() {
   setDot(2, "wait", "スプレッドシートに書き込み中...");
 
   try {
-    const imageContents = await Promise.all(selectedFiles.map(async f => ({
-      type: "image",
-      source: { type: "base64", media_type: f.type || "image/jpeg", data: await fileToBase64(f) }
-    })));
+    const imageContents = await Promise.all(selectedFiles.map(async f => {
+      const resized = await resizeImage(f);
+      const data = await fileToBase64(resized);
+      return {
+        type: "image",
+        source: { type: "base64", media_type: "image/jpeg", data: data }
+      };
+    }));
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
