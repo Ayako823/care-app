@@ -9,32 +9,22 @@
 <title>施設記録 転記アプリ</title>
 <style>
   :root {
-    --green: #3B6D11;
-    --green-light: #EAF3DE;
-    --blue: #185FA5;
-    --blue-light: #E6F1FB;
-    --border: #D3D1C7;
-    --text: #2C2C2A;
-    --text-sub: #888780;
-    --bg: #FAFAF8;
-    --white: #ffffff;
-    --radius: 12px;
-    --radius-sm: 8px;
+    --green: #3B6D11; --green-light: #EAF3DE;
+    --blue: #185FA5; --blue-light: #E6F1FB;
+    --border: #D3D1C7; --text: #2C2C2A; --text-sub: #888780;
+    --bg: #FAFAF8; --white: #ffffff;
+    --radius: 12px; --radius-sm: 8px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, 'Hiragino Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 3rem; }
-
   .top-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 1.25rem 0.75rem; position: sticky; top: 0; z-index: 10; }
   .top-bar h1 { font-size: 17px; font-weight: 600; }
   .top-bar p { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-
   .container { max-width: 520px; margin: 0 auto; padding: 1rem; }
-
   .tab-bar { display: flex; gap: 8px; margin-bottom: 1.25rem; }
   .tab { flex: 1; padding: 10px 8px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; background: var(--white); color: var(--text-sub); text-align: center; transition: all 0.15s; user-select: none; }
   .tab.active-menu { background: var(--green-light); color: var(--green); border-color: var(--green); }
   .tab.active-care { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
-
   .step-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem; margin-bottom: 0.75rem; }
   .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0.9rem; }
   .step-num { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
@@ -42,26 +32,23 @@
   .step-num.care { background: var(--blue-light); color: var(--blue); }
   .step-title { font-size: 15px; font-weight: 600; }
   .step-sub { font-size: 12px; color: var(--text-sub); margin-top: 1px; }
-
   .how-to { background: var(--blue-light); border-radius: var(--radius-sm); padding: 0.85rem 1rem; }
   .how-to-title { font-size: 12px; font-weight: 700; color: var(--blue); margin-bottom: 6px; }
   .how-to ol { padding-left: 16px; font-size: 13px; color: var(--text); line-height: 2; }
   .how-to a { color: var(--blue); font-weight: 600; text-decoration: none; }
-
   .prompt-label { font-size: 12px; color: var(--text-sub); font-weight: 500; margin: 0.75rem 0 5px; }
   .prompt-box { background: #F7F6F3; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; color: var(--text); line-height: 1.6; white-space: pre-wrap; word-break: break-all; max-height: 130px; overflow-y: auto; }
-
   .btn { width: 100%; padding: 13px; border-radius: var(--radius-sm); border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; user-select: none; }
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
   .btn-green { background: var(--green); color: white; }
   .btn-blue { background: var(--blue); color: white; }
-
+  .btn-outline { background: var(--white); color: var(--text-sub); border: 1px solid var(--border); font-size: 13px; padding: 9px; margin-top: 6px; }
   .copied-badge { display: none; background: var(--green-light); color: var(--green); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: var(--radius-sm); text-align: center; margin-top: 8px; }
-
-  .json-area { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; font-family: 'SF Mono', 'Menlo', monospace; color: var(--text); background: var(--white); resize: vertical; min-height: 110px; outline: none; line-height: 1.5; transition: border-color 0.15s; margin-top: 0.75rem; }
+  .json-wrap { position: relative; margin-top: 0.75rem; }
+  .json-area { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; font-family: 'SF Mono', 'Menlo', monospace; color: var(--text); background: var(--white); resize: none; height: 130px; outline: none; line-height: 1.5; transition: border-color 0.15s; display: block; }
   .json-area:focus { border-color: var(--blue); }
-
+  .clear-x { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: var(--border); border: none; cursor: pointer; font-size: 14px; color: var(--text-sub); display: flex; align-items: center; justify-content: center; line-height: 1; }
   .status-wrap { margin-top: 0.75rem; }
   .status-row { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
   .status-row:last-child { border-bottom: none; }
@@ -71,7 +58,6 @@
   .dot-err { background: #EF4444; }
   .status-msg { color: var(--text-sub); line-height: 1.5; }
   .status-msg b { color: var(--text); font-weight: 600; }
-
   .success-box { background: #F0FDF4; border: 1px solid #86EFAC; border-radius: var(--radius-sm); padding: 1rem; text-align: center; margin-top: 0.75rem; }
   .success-box .icon { font-size: 24px; margin-bottom: 4px; }
   .success-box p { font-size: 14px; font-weight: 600; color: #15803D; }
@@ -79,20 +65,16 @@
 </style>
 </head>
 <body>
-
 <div class="top-bar">
   <h1>施設記録 転記アプリ</h1>
   <p>写真 → Claude.ai → スプレッドシートへ転記</p>
 </div>
-
 <div class="container">
-
   <div class="tab-bar">
     <div class="tab active-menu" id="tabMenu" onclick="switchTab('menu')">🥗 献立表</div>
     <div class="tab" id="tabCare" onclick="switchTab('care')">📋 介護記録</div>
   </div>
 
-  <!-- STEP 1 -->
   <div class="step-card">
     <div class="step-header">
       <div class="step-num menu" id="stepNum1">1</div>
@@ -101,7 +83,6 @@
         <div class="step-sub" id="stepSub1">プロンプトをコピーしてClaude.aiに送る</div>
       </div>
     </div>
-
     <div class="how-to">
       <div class="how-to-title">手順</div>
       <ol>
@@ -111,17 +92,12 @@
         <li>返ってきたJSONをコピー</li>
       </ol>
     </div>
-
     <div class="prompt-label">送るプロンプト</div>
     <div class="prompt-box" id="promptBox"></div>
-
-    <button class="btn btn-green" id="copyBtn" onclick="copyPrompt()">
-      📋 プロンプトをコピー
-    </button>
+    <button class="btn btn-green" id="copyBtn" onclick="copyPrompt()">📋 プロンプトをコピー</button>
     <div class="copied-badge" id="copiedBadge">✓ コピーしました！Claude.aiに写真と一緒に貼り付けて送信してください</div>
   </div>
 
-  <!-- STEP 2 -->
   <div class="step-card">
     <div class="step-header">
       <div class="step-num menu" id="stepNum2">2</div>
@@ -130,16 +106,11 @@
         <div class="step-sub">ClaudeのJSONをここに貼り付けてボタンを押す</div>
       </div>
     </div>
-
-    <div id="jsonLoaded" style="display:none; background:var(--green-light); color:var(--green); font-size:13px; font-weight:600; padding:8px 12px; border-radius:var(--radius-sm); margin-top:0.75rem; text-align:center;"></div>
-    <div id="jsonPreview" style="display:none; background:#F7F6F3; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; font-size:11px; font-family:monospace; color:var(--text-sub); max-height:70px; overflow:hidden; margin-top:6px; word-break:break-all; line-height:1.5;"></div>
-
-    <button class="btn btn-outline" id="pasteBtn" onclick="loadFromClipboard()">📋 クリップボードからJSONを読み込む</button>
-
-    <button class="btn btn-green" id="sendBtn" onclick="sendToSheet()" disabled>
-      🚀 スプレッドシートに転記する
-    </button>
-
+    <div class="json-wrap">
+      <textarea class="json-area" id="jsonInput" placeholder='ClaudeのJSONをここに貼り付け&#10;{"type":"menu","rows":[...]}'></textarea>
+      <button class="clear-x" onclick="clearJson()" title="クリア">✕</button>
+    </div>
+    <button class="btn btn-green" id="sendBtn" onclick="sendToSheet()">🚀 スプレッドシートに転記する</button>
     <div class="status-wrap" id="statusWrap" style="display:none">
       <div class="status-row">
         <div class="dot dot-wait" id="dot1"></div>
@@ -150,14 +121,12 @@
         <div class="status-msg" id="msg2"></div>
       </div>
     </div>
-
     <div class="success-box" id="successBox" style="display:none">
       <div class="icon">✅</div>
       <p>スプレッドシートに転記しました！</p>
       <small id="successDetail"></small>
     </div>
   </div>
-
 </div>
 
 <script>
@@ -207,63 +176,27 @@ function switchTab(tab) {
   document.getElementById("sendBtn").className = "btn " + (isMenu ? "btn-green" : "btn-blue");
   document.getElementById("promptBox").textContent = PROMPTS[tab];
   document.getElementById("copiedBadge").style.display = "none";
-  document.getElementById("jsonLoaded").style.display = "none";
-  document.getElementById("jsonPreview").style.display = "none";
-  document.getElementById("statusWrap").style.display = "none";
-  document.getElementById("successBox").style.display = "none";
-  document.getElementById("sendBtn").disabled = true;
-  parsedJson = null;
-}
-
-let parsedJson = null;
-
-function loadFromClipboard() {
-  if (navigator.clipboard && navigator.clipboard.readText) {
-    navigator.clipboard.readText().then(text => {
-      processJson(text);
-    }).catch(() => {
-      alert("クリップボードへのアクセスが拒否されました。
-一度テキストをコピーしてから再度お試しください。");
-    });
-  } else {
-    alert("このブラウザはクリップボード読み込みに対応していません。");
-  }
-}
-
-function processJson(text) {
-  try {
-    const clean = text.replace(/```json|```/g, "").trim();
-    parsedJson = JSON.parse(clean);
-    const rowCount = parsedJson.rows ? parsedJson.rows.length : 0;
-    document.getElementById("jsonLoaded").style.display = "block";
-    document.getElementById("jsonLoaded").textContent = "✓ " + rowCount + "件のデータを読み込みました";
-    document.getElementById("jsonPreview").style.display = "block";
-    document.getElementById("jsonPreview").textContent = clean.substring(0, 200) + "...";
-    document.getElementById("sendBtn").disabled = false;
-    document.getElementById("statusWrap").style.display = "none";
-    document.getElementById("successBox").style.display = "none";
-  } catch(e) {
-    alert("JSONの形式が正しくありません。
-Claudeの返答をそのままコピーしてから
-「クリップボードから読み込む」を押してください。");
-  }
+  clearJson();
 }
 
 function copyPrompt() {
   const text = PROMPTS[currentTab];
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => showCopied());
+    navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text));
   } else {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
-    showCopied();
+    fallbackCopy(text);
   }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;opacity:0;top:0;left:0;";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand("copy"); showCopied(); } catch(e) {}
+  document.body.removeChild(ta);
 }
 
 function showCopied() {
@@ -272,24 +205,28 @@ function showCopied() {
   setTimeout(() => badge.style.display = "none", 4000);
 }
 
+function clearJson() {
+  document.getElementById("jsonInput").value = "";
+  document.getElementById("statusWrap").style.display = "none";
+  document.getElementById("successBox").style.display = "none";
+}
+
 async function sendToSheet() {
+  const raw = document.getElementById("jsonInput").value.trim();
+  if (!raw) { alert("JSONを貼り付けてください"); return; }
   let parsed;
   try {
-    const clean = raw.replace(/```json|```/g, "").trim();
-    parsed = JSON.parse(clean);
+    parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
   } catch(e) {
     alert("JSONの形式が正しくありません。\nClaudeの返答をそのままコピーして貼り付けてください。");
     return;
   }
-
   document.getElementById("statusWrap").style.display = "block";
   document.getElementById("successBox").style.display = "none";
   document.getElementById("sendBtn").disabled = true;
-
   const rowCount = parsed.rows ? parsed.rows.length : 0;
-  setStatus(1, "ok", `<b>データ確認完了</b> — ${rowCount}件を検出`);
+  setStatus(1, "ok", "<b>データ確認完了</b> — " + rowCount + "件を検出");
   setStatus(2, "wait", "スプレッドシートに書き込み中...");
-
   try {
     await fetch(GAS_URL, {
       method: "POST",
@@ -297,20 +234,14 @@ async function sendToSheet() {
       body: JSON.stringify(parsed),
       mode: "no-cors"
     });
-
     setStatus(2, "ok", "<b>書き込み完了！</b>");
     document.getElementById("successBox").style.display = "block";
     const label = currentTab === "menu" ? "献立表" : "介護記録";
-    document.getElementById("successDetail").textContent = `「${label}」シートに${rowCount}件追記しました`;
-    parsedJson = null;
-    document.getElementById("jsonLoaded").style.display = "none";
-    document.getElementById("jsonPreview").style.display = "none";
-    document.getElementById("sendBtn").disabled = true;
-
+    document.getElementById("successDetail").textContent = "「" + label + "」シートに" + rowCount + "件追記しました";
+    clearJson();
   } catch(err) {
     setStatus(2, "err", "エラー: " + err.message);
   }
-
   document.getElementById("sendBtn").disabled = false;
 }
 
