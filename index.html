@@ -22,10 +22,10 @@
     --radius-sm: 8px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 3rem; }
+  body { font-family: -apple-system, 'Hiragino Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 3rem; }
 
   .top-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 1.25rem 0.75rem; position: sticky; top: 0; z-index: 10; }
-  .top-bar h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+  .top-bar h1 { font-size: 17px; font-weight: 600; }
   .top-bar p { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
 
   .container { max-width: 520px; margin: 0 auto; padding: 1rem; }
@@ -43,12 +43,13 @@
   .step-title { font-size: 15px; font-weight: 600; }
   .step-sub { font-size: 12px; color: var(--text-sub); margin-top: 1px; }
 
-  .prompt-box { background: #F7F6F3; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; color: var(--text); line-height: 1.6; white-space: pre-wrap; word-break: break-all; max-height: 130px; overflow-y: auto; }
-
-  .how-to { background: var(--blue-light); border-radius: var(--radius-sm); padding: 0.85rem 1rem; margin-top: 0.75rem; }
+  .how-to { background: var(--blue-light); border-radius: var(--radius-sm); padding: 0.85rem 1rem; }
   .how-to-title { font-size: 12px; font-weight: 700; color: var(--blue); margin-bottom: 6px; }
   .how-to ol { padding-left: 16px; font-size: 13px; color: var(--text); line-height: 2; }
   .how-to a { color: var(--blue); font-weight: 600; text-decoration: none; }
+
+  .prompt-label { font-size: 12px; color: var(--text-sub); font-weight: 500; margin: 0.75rem 0 5px; }
+  .prompt-box { background: #F7F6F3; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; color: var(--text); line-height: 1.6; white-space: pre-wrap; word-break: break-all; max-height: 130px; overflow-y: auto; }
 
   .btn { width: 100%; padding: 13px; border-radius: var(--radius-sm); border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; user-select: none; }
   .btn:active { transform: scale(0.97); }
@@ -58,7 +59,7 @@
 
   .copied-badge { display: none; background: var(--green-light); color: var(--green); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: var(--radius-sm); text-align: center; margin-top: 8px; }
 
-  .json-area { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; font-family: 'SF Mono', 'Menlo', monospace; color: var(--text); background: var(--white); resize: vertical; min-height: 100px; outline: none; line-height: 1.5; transition: border-color 0.15s; margin-top: 0.75rem; }
+  .json-area { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12px; font-family: 'SF Mono', 'Menlo', monospace; color: var(--text); background: var(--white); resize: vertical; min-height: 110px; outline: none; line-height: 1.5; transition: border-color 0.15s; margin-top: 0.75rem; }
   .json-area:focus { border-color: var(--blue); }
 
   .status-wrap { margin-top: 0.75rem; }
@@ -81,7 +82,7 @@
 
 <div class="top-bar">
   <h1>施設記録 転記アプリ</h1>
-  <p>Claude.ai → JSON → スプレッドシートへ転記</p>
+  <p>写真 → Claude.ai → スプレッドシートへ転記</p>
 </div>
 
 <div class="container">
@@ -96,26 +97,28 @@
     <div class="step-header">
       <div class="step-num menu" id="stepNum1">1</div>
       <div>
-        <div class="step-title">プロンプトをコピー</div>
-        <div class="step-sub" id="stepSub1">Claude.aiに写真と一緒に送る</div>
+        <div class="step-title">Claude.aiでJSONを作る</div>
+        <div class="step-sub" id="stepSub1">プロンプトをコピーしてClaude.aiに送る</div>
       </div>
     </div>
-    <div class="prompt-box" id="promptBox"></div>
-    <button class="btn btn-green" id="copyBtn" onclick="copyPrompt()">
-      📋 プロンプトをコピー
-    </button>
-    <div class="copied-badge" id="copiedBadge">✓ コピーしました！Claude.aiに貼り付けて写真も添付して送信してください</div>
 
     <div class="how-to">
-      <div class="how-to-title">操作手順</div>
+      <div class="how-to-title">手順</div>
       <ol>
-        <li>上のボタンでプロンプトをコピー</li>
+        <li>下のボタンでプロンプトをコピー</li>
         <li><a href="https://claude.ai" target="_blank">claude.ai</a> を開く</li>
-        <li>書類の写真を添付する</li>
-        <li>プロンプトを貼り付けて送信</li>
+        <li>写真を添付してプロンプトを貼り付けて送信</li>
         <li>返ってきたJSONをコピー</li>
       </ol>
     </div>
+
+    <div class="prompt-label">送るプロンプト</div>
+    <div class="prompt-box" id="promptBox"></div>
+
+    <button class="btn btn-green" id="copyBtn" onclick="copyPrompt()">
+      📋 プロンプトをコピー
+    </button>
+    <div class="copied-badge" id="copiedBadge">✓ コピーしました！Claude.aiに写真と一緒に貼り付けて送信してください</div>
   </div>
 
   <!-- STEP 2 -->
@@ -124,11 +127,12 @@
       <div class="step-num menu" id="stepNum2">2</div>
       <div>
         <div class="step-title">JSONを貼り付けて転記</div>
-        <div class="step-sub">ClaudeのJSONを貼り付けてボタンを押す</div>
+        <div class="step-sub">ClaudeのJSONをここに貼り付けてボタンを押す</div>
       </div>
     </div>
 
-    <textarea class="json-area" id="jsonInput" placeholder='Claudeが返したJSONをここに貼り付けてください&#10;例: {"type":"menu","rows":[...]}'></textarea>
+    <textarea class="json-area" id="jsonInput" placeholder='ClaudeのJSONをここに貼り付けてください&#10;例: {"type":"menu","rows":[...]}'></textarea>
+    <button class="btn btn-outline" onclick="clearJson()">🗑 テキストをクリア</button>
 
     <button class="btn btn-green" id="sendBtn" onclick="sendToSheet()">
       🚀 スプレッドシートに転記する
@@ -136,11 +140,11 @@
 
     <div class="status-wrap" id="statusWrap" style="display:none">
       <div class="status-row">
-        <div class="dot" id="dot1"></div>
+        <div class="dot dot-wait" id="dot1"></div>
         <div class="status-msg" id="msg1"></div>
       </div>
       <div class="status-row">
-        <div class="dot" id="dot2"></div>
+        <div class="dot dot-wait" id="dot2"></div>
         <div class="status-msg" id="msg2"></div>
       </div>
     </div>
@@ -173,7 +177,7 @@ const PROMPTS = {
 ・間食がない日は空文字
 ・JSONのみ返す`,
 
-  care: `添付の画像は介護施設のケア記録一覧表です（複数ページあり）。全ページの内容を読み取り、以下のJSON形式のみで返してください。説明文・マークダウン・コードブロックは不要です。
+  care: `添付の画像は介護施設のケア記録一覧表です。内容を読み取り、以下のJSON形式のみで返してください。説明文・マークダウン・コードブロックは不要です。
 
 {"type":"care","rows":[
   ["R08.03.28","00:23","夜勤者記録","就眠されており特にお変わりなし","古川 久子"],
@@ -195,8 +199,8 @@ function switchTab(tab) {
     document.getElementById(id).className = "step-num " + tab;
   });
   document.getElementById("stepSub1").textContent = isMenu
-    ? "献立表の写真を添付して送信"
-    : "ケア記録の写真（複数枚）を添付して送信";
+    ? "プロンプトをコピーしてClaude.aiに送る"
+    : "介護記録は複数枚まとめて送れます";
   document.getElementById("copyBtn").className = "btn " + (isMenu ? "btn-green" : "btn-blue");
   document.getElementById("sendBtn").className = "btn " + (isMenu ? "btn-green" : "btn-blue");
   document.getElementById("promptBox").textContent = PROMPTS[tab];
@@ -206,36 +210,33 @@ function switchTab(tab) {
   document.getElementById("successBox").style.display = "none";
 }
 
+function clearJson() {
+  document.getElementById("jsonInput").value = "";
+  document.getElementById("statusWrap").style.display = "none";
+  document.getElementById("successBox").style.display = "none";
+}
+
 function copyPrompt() {
   const text = PROMPTS[currentTab];
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text));
+    navigator.clipboard.writeText(text).then(() => showCopied());
   } else {
-    fallbackCopy(text);
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showCopied();
   }
-}
-
-function fallbackCopy(text) {
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  document.execCommand("copy");
-  document.body.removeChild(ta);
-  showCopied();
 }
 
 function showCopied() {
   const badge = document.getElementById("copiedBadge");
   badge.style.display = "block";
-  setTimeout(() => badge.style.display = "none", 3000);
-}
-
-function setStatus(num, state, html) {
-  document.getElementById("dot" + num).className = "dot dot-" + state;
-  document.getElementById("msg" + num).innerHTML = html;
+  setTimeout(() => badge.style.display = "none", 4000);
 }
 
 async function sendToSheet() {
@@ -244,7 +245,8 @@ async function sendToSheet() {
 
   let parsed;
   try {
-    parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
+    const clean = raw.replace(/```json|```/g, "").trim();
+    parsed = JSON.parse(clean);
   } catch(e) {
     alert("JSONの形式が正しくありません。\nClaudeの返答をそのままコピーして貼り付けてください。");
     return;
@@ -254,9 +256,9 @@ async function sendToSheet() {
   document.getElementById("successBox").style.display = "none";
   document.getElementById("sendBtn").disabled = true;
 
-  const rowCount = (parsed.rows ? parsed.rows.length : 0) - 1;
-  setStatus(1, "dot-ok", `<b>データ確認完了</b> — ${rowCount}件を検出`);
-  setStatus(2, "dot-wait", "スプレッドシートに書き込み中...");
+  const rowCount = parsed.rows ? parsed.rows.length : 0;
+  setStatus(1, "ok", `<b>データ確認完了</b> — ${rowCount}件を検出`);
+  setStatus(2, "wait", "スプレッドシートに書き込み中...");
 
   try {
     await fetch(GAS_URL, {
@@ -266,17 +268,22 @@ async function sendToSheet() {
       mode: "no-cors"
     });
 
-    setStatus(2, "dot-ok", "<b>書き込み完了！</b>");
+    setStatus(2, "ok", "<b>書き込み完了！</b>");
     document.getElementById("successBox").style.display = "block";
     const label = currentTab === "menu" ? "献立表" : "介護記録";
     document.getElementById("successDetail").textContent = `「${label}」シートに${rowCount}件追記しました`;
     document.getElementById("jsonInput").value = "";
 
   } catch(err) {
-    setStatus(2, "dot-err", "エラー: " + err.message);
+    setStatus(2, "err", "エラー: " + err.message);
   }
 
   document.getElementById("sendBtn").disabled = false;
+}
+
+function setStatus(num, state, html) {
+  document.getElementById("dot" + num).className = "dot dot-" + state;
+  document.getElementById("msg" + num).innerHTML = html;
 }
 
 switchTab("menu");
