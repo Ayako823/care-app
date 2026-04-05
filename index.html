@@ -131,10 +131,12 @@
       </div>
     </div>
 
-    <textarea class="json-area" id="jsonInput" placeholder='ClaudeのJSONをここに貼り付けてください&#10;例: {"type":"menu","rows":[...]}'></textarea>
-    <button class="btn btn-outline" onclick="clearJson()">🗑 テキストをクリア</button>
+    <div id="jsonLoaded" style="display:none; background:var(--green-light); color:var(--green); font-size:13px; font-weight:600; padding:8px 12px; border-radius:var(--radius-sm); margin-top:0.75rem; text-align:center;"></div>
+    <div id="jsonPreview" style="display:none; background:#F7F6F3; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; font-size:11px; font-family:monospace; color:var(--text-sub); max-height:70px; overflow:hidden; margin-top:6px; word-break:break-all; line-height:1.5;"></div>
 
-    <button class="btn btn-green" id="sendBtn" onclick="sendToSheet()">
+    <button class="btn btn-outline" id="pasteBtn" onclick="loadFromClipboard()">📋 クリップボードからJSONを読み込む</button>
+
+    <button class="btn btn-green" id="sendBtn" onclick="sendToSheet()" disabled>
       🚀 スプレッドシートに転記する
     </button>
 
@@ -205,15 +207,46 @@ function switchTab(tab) {
   document.getElementById("sendBtn").className = "btn " + (isMenu ? "btn-green" : "btn-blue");
   document.getElementById("promptBox").textContent = PROMPTS[tab];
   document.getElementById("copiedBadge").style.display = "none";
-  document.getElementById("jsonInput").value = "";
+  document.getElementById("jsonLoaded").style.display = "none";
+  document.getElementById("jsonPreview").style.display = "none";
   document.getElementById("statusWrap").style.display = "none";
   document.getElementById("successBox").style.display = "none";
+  document.getElementById("sendBtn").disabled = true;
+  parsedJson = null;
 }
 
-function clearJson() {
-  document.getElementById("jsonInput").value = "";
-  document.getElementById("statusWrap").style.display = "none";
-  document.getElementById("successBox").style.display = "none";
+let parsedJson = null;
+
+function loadFromClipboard() {
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(text => {
+      processJson(text);
+    }).catch(() => {
+      alert("クリップボードへのアクセスが拒否されました。
+一度テキストをコピーしてから再度お試しください。");
+    });
+  } else {
+    alert("このブラウザはクリップボード読み込みに対応していません。");
+  }
+}
+
+function processJson(text) {
+  try {
+    const clean = text.replace(/```json|```/g, "").trim();
+    parsedJson = JSON.parse(clean);
+    const rowCount = parsedJson.rows ? parsedJson.rows.length : 0;
+    document.getElementById("jsonLoaded").style.display = "block";
+    document.getElementById("jsonLoaded").textContent = "✓ " + rowCount + "件のデータを読み込みました";
+    document.getElementById("jsonPreview").style.display = "block";
+    document.getElementById("jsonPreview").textContent = clean.substring(0, 200) + "...";
+    document.getElementById("sendBtn").disabled = false;
+    document.getElementById("statusWrap").style.display = "none";
+    document.getElementById("successBox").style.display = "none";
+  } catch(e) {
+    alert("JSONの形式が正しくありません。
+Claudeの返答をそのままコピーしてから
+「クリップボードから読み込む」を押してください。");
+  }
 }
 
 function copyPrompt() {
@@ -240,9 +273,6 @@ function showCopied() {
 }
 
 async function sendToSheet() {
-  const raw = document.getElementById("jsonInput").value.trim();
-  if (!raw) { alert("JSONを貼り付けてください"); return; }
-
   let parsed;
   try {
     const clean = raw.replace(/```json|```/g, "").trim();
@@ -272,7 +302,10 @@ async function sendToSheet() {
     document.getElementById("successBox").style.display = "block";
     const label = currentTab === "menu" ? "献立表" : "介護記録";
     document.getElementById("successDetail").textContent = `「${label}」シートに${rowCount}件追記しました`;
-    document.getElementById("jsonInput").value = "";
+    parsedJson = null;
+    document.getElementById("jsonLoaded").style.display = "none";
+    document.getElementById("jsonPreview").style.display = "none";
+    document.getElementById("sendBtn").disabled = true;
 
   } catch(err) {
     setStatus(2, "err", "エラー: " + err.message);
