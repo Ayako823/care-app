@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="施設記録">
+<title>施設記録 転記アプリ</title>
+<style>
+  :root {
+    --green: #3B6D11;
+    --green-light: #EAF3DE;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --gray: #5F5E5A;
+    --gray-light: #F1EFE8;
+    --border: #D3D1C7;
+    --text: #2C2C2A;
+    --text-sub: #888780;
+    --bg: #FAFAF8;
+    --white: #ffffff;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+  }
+
+  .top-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.25rem 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .top-bar h1 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .top-bar p {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-top: 2px;
+  }
+
+  .container { max-width: 520px; margin: 0 auto; padding: 1rem 1rem; }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--text-sub);
+    text-align: center;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .tab.active-menu {
+    background: var(--green-light);
+    color: var(--green);
+    border-color: var(--green);
+  }
+
+  .tab.active-care {
+    background: var(--blue-light);
+    color: var(--blue);
+    border-color: var(--blue);
+  }
+
+  /* STEP CARDS */
+  .step-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.9rem;
+  }
+
+  .step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-num.menu { background: var(--green-light); color: var(--green); }
+  .step-num.care { background: var(--blue-light); color: var(--blue); }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .step-sub {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-top: 1px;
+  }
+
+  /* UPLOAD AREA */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--gray-light);
+    position: relative;
+  }
+
+  .upload-zone:active { opacity: 0.75; }
+  .upload-zone.has-files { border-style: solid; border-color: var(--border); background: var(--white); }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 100px;
+  }
+
+  .upload-icon { font-size: 28px; margin-bottom: 6px; }
+  .upload-text { font-size: 14px; color: var(--text-sub); font-weight: 500; }
+  .upload-sub-text { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
+
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .preview-grid img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  /* PROMPT BOX */
+  .prompt-section { margin-top: 0.9rem; }
+
+  .prompt-label {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+
+  .prompt-box {
+    background: var(--gray-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    user-select: none;
+  }
+
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .btn-green { background: var(--green); color: white; }
+  .btn-green:active:not(:disabled) { background: #2d5209; }
+
+  .btn-blue { background: var(--blue); color: white; }
+  .btn-blue:active:not(:disabled) { background: #0e4278; }
+
+  .btn-outline {
+    background: var(--white);
+    color: var(--text-sub);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    padding: 9px;
+    margin-top: 6px;
+  }
+
+  /* COPIED BADGE */
+  .copied-badge {
+    display: none;
+    background: var(--green-light);
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* JSON INPUT */
+  .json-area {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: var(--text);
+    background: var(--white);
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    line-height: 1.5;
+    transition: border-color 0.15s;
+    margin-top: 0.75rem;
+  }
+
+  .json-area:focus { border-color: var(--blue); }
+
+  /* STATUS */
+  .status-wrap { margin-top: 0.75rem; }
+
+  .status-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .status-row:last-child { border-bottom: none; }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  .dot-wait { background: var(--border); }
+  .dot-ok { background: #22C55E; }
+  .dot-err { background: #EF4444; }
+
+  .status-msg { color: var(--text-sub); line-height: 1.5; }
+  .status-msg b { color: var(--text); font-weight: 600; }
+
+  /* HOW TO BOX */
+  .how-to {
+    background: var(--blue-light);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    margin-top: 0.75rem;
+  }
+
+  .how-to-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+
+  .how-to ol {
+    padding-left: 16px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.9;
+  }
+
+  .how-to a {
+    color: var(--blue);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  /* SUCCESS */
+  .success-box {
+    background: #F0FDF4;
+    border: 1px solid #86EFAC;
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    text-align: center;
+    margin-top: 0.75rem;
+  }
+
+  .success-box .icon { font-size: 24px; margin-bottom: 4px; }
+  .success-box p { font-size: 14px; font-weight: 600; color: #15803D; }
+  .success-box small { font-size: 12px; color: #4ADE80; display: block; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>施設記録 転記アプリ</h1>
+  <p>写真 → Claude → スプレッドシートへ自動転記</p>
+</div>
+
+<div class="container">
+
+  <!-- TAB -->
+  <div class="tab-bar">
+    <div class="tab active-menu" id="tabMenu" onclick="switchTab('menu')">🥗 献立表</div>
+    <div class="tab" id="tabCare" onclick="switchTab('care')">📋 介護記録</div>
+  </div>
+
+  <!-- STEP 1: 写真を選ぶ -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num menu" id="stepNum1">1</div>
+      <div>
+        <div class="step-title">写真を選ぶ</div>
+        <div class="step-sub" id="stepSub1">施設からもらった書類を撮影した写真</div>
+      </div>
+    </div>
+
+    <div class="upload-zone" id="uploadZone" onclick="triggerFileInput()">
+      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)">
+      <div class="upload-icon">📷</div>
+      <div class="upload-text" id="uploadText">タップして写真を選ぶ</div>
+      <div class="upload-sub-text" id="uploadSubText">複数枚まとめて選べます</div>
+      <div class="preview-grid" id="previewGrid"></div>
+    </div>
+
+    <button class="btn btn-outline" id="clearBtn" style="display:none" onclick="clearFiles()">写真をクリア</button>
+  </div>
+
+  <!-- STEP 2: プロンプトをコピー -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num menu" id="stepNum2">2</div>
+      <div>
+        <div class="step-title">Claude.aiにプロンプトをコピー</div>
+        <div class="step-sub">下のボタンでコピー → Claude.aiに貼り付けて写真も添付して送信</div>
+      </div>
+    </div>
+
+    <div class="prompt-section">
+      <div class="prompt-label">送るプロンプト（自動生成）</div>
+      <div class="prompt-box" id="promptBox">← まず写真を選んでください</div>
+    </div>
+
+    <button class="btn btn-green" id="copyBtn" onclick="copyPrompt()" disabled>
+      📋 プロンプトをコピー
+    </button>
+    <div class="copied-badge" id="copiedBadge">✓ コピーしました！Claude.aiに貼り付けて送信してください</div>
+
+    <div class="how-to">
+      <div class="how-to-title">操作手順</div>
+      <ol>
+        <li>上のボタンでプロンプトをコピー</li>
+        <li><a href="https://claude.ai" target="_blank">claude.ai</a> を開く</li>
+        <li>新しい会話で写真を添付する</li>
+        <li>プロンプトを貼り付けて送信</li>
+        <li>Claudeが返したJSONをコピー</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- STEP 3: JSONを貼り付けて転記 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num menu" id="stepNum3">3</div>
+      <div>
+        <div class="step-title">JSONを貼り付けて転記</div>
+        <div class="step-sub">ClaudeのJSONを貼り付けてボタンを押す</div>
+      </div>
+    </div>
+
+    <textarea class="json-area" id="jsonInput" placeholder='Claudeが返したJSONをここに貼り付けてください&#10;例: {"type":"menu","rows":[...]}'></textarea>
+
+    <button class="btn btn-blue" id="sendBtn" onclick="sendToSheet()">
+      🚀 スプレッドシートに転記する
+    </button>
+
+    <div class="status-wrap" id="statusWrap" style="display:none">
+      <div class="status-row">
+        <div class="dot" id="dot1"></div>
+        <div class="status-msg" id="msg1"></div>
+      </div>
+      <div class="status-row">
+        <div class="dot" id="dot2"></div>
+        <div class="status-msg" id="msg2"></div>
+      </div>
+    </div>
+
+    <div class="success-box" id="successBox" style="display:none">
+      <div class="icon">✅</div>
+      <p>スプレッドシートに転記しました！</p>
+      <small id="successDetail"></small>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoNf10EAkHlJG3mxHyTo3m3ASCQ1GOTZMniSB5Fo1G0QIydLWlj8PkFsBRjGOWAv9n/exec";
+
+let currentTab = "menu";
+let selectedFiles = [];
+
+const PROMPTS = {
+  menu: `添付の画像は介護施設の献立表です。内容を読み取り、以下のJSON形式のみで返してください。説明文・マークダウン・コードブロックは不要です。
+
+{"type":"menu","period":"対象期間（例：3/30〜4/5）","rows":[
+  ["対象期間","区分","月曜","火曜","水曜","木曜","金曜","土曜","日曜"],
+  ["期間","朝食","内容","内容","内容","内容","内容","内容","内容"],
+  ["期間","昼食","内容","内容","内容","内容","内容","内容","内容"],
+  ["期間","間食","内容","内容","内容","内容","内容","内容","内容"],
+  ["期間","夕食","内容","内容","内容","内容","内容","内容","内容"]
+]}
+
+・区分は「朝食」「昼食」「間食」「夕食」の4つ
+・料理が複数ある場合は「/」で区切る
+・読み取れない箇所は空文字にする
+・JSONのみ返す（他の文章は不要）`,
+
+  care: `添付の画像は介護施設のケア記録一覧表です。内容を読み取り、以下のJSON形式のみで返してください。説明文・マークダウン・コードブロックは不要です。
+
+{"type":"care","rows":[
+  ["日付","時刻","ケア記録","備考","担当者"],
+  ["R08.03.28","00:23","夜勤者記録","就眠されており特にお変わりなし","古川 久子"],
+  ...全行
+]}
+
+・日付は「R08.03.28」形式
+・時刻は「00:23」形式
+・日付が空欄の行は直前の日付を引き継ぐ
+・全ページの全記録を漏れなく含める
+・JSONのみ返す（他の文章は不要）`
+};
+
+function switchTab(tab) {
+  currentTab = tab;
+  const isMenu = tab === "menu";
+
+  document.getElementById("tabMenu").className = "tab " + (isMenu ? "active-menu" : "");
+  document.getElementById("tabCare").className = "tab " + (!isMenu ? "active-care" : "");
+
+  ["stepNum1","stepNum2","stepNum3"].forEach(id => {
+    document.getElementById(id).className = "step-num " + tab;
+  });
+
+  document.getElementById("stepSub1").textContent = isMenu
+    ? "施設からもらった献立表の写真"
+    : "施設からもらったケア記録の写真（複数ページOK）";
+
+  document.getElementById("copyBtn").className = "btn " + (isMenu ? "btn-green" : "btn-blue");
+  document.getElementById("sendBtn").className = "btn " + (isMenu ? "btn-green" : "btn-blue");
+
+  updatePrompt();
+  clearFiles();
+}
+
+function triggerFileInput() {
+  document.getElementById("fileInput").click();
+}
+
+function handleFiles(files) {
+  selectedFiles = Array.from(files);
+  const grid = document.getElementById("previewGrid");
+  grid.innerHTML = "";
+  selectedFiles.forEach(f => {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(f);
+    grid.appendChild(img);
+  });
+  document.getElementById("uploadText").textContent = selectedFiles.length + "枚 選択済み";
+  document.getElementById("uploadSubText").textContent = "タップして変更";
+  document.getElementById("uploadZone").classList.add("has-files");
+  document.getElementById("clearBtn").style.display = "block";
+  document.getElementById("copyBtn").disabled = false;
+  updatePrompt();
+}
+
+function clearFiles() {
+  selectedFiles = [];
+  document.getElementById("previewGrid").innerHTML = "";
+  document.getElementById("uploadText").textContent = "タップして写真を選ぶ";
+  document.getElementById("uploadSubText").textContent = "複数枚まとめて選べます";
+  document.getElementById("uploadZone").classList.remove("has-files");
+  document.getElementById("clearBtn").style.display = "none";
+  document.getElementById("copyBtn").disabled = true;
+  document.getElementById("copiedBadge").style.display = "none";
+  document.getElementById("fileInput").value = "";
+  updatePrompt();
+}
+
+function updatePrompt() {
+  const box = document.getElementById("promptBox");
+  if (selectedFiles.length === 0) {
+    box.textContent = "← まず写真を選んでください";
+    return;
+  }
+  box.textContent = PROMPTS[currentTab];
+}
+
+function copyPrompt() {
+  const text = PROMPTS[currentTab];
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showCopied());
+  } else {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showCopied();
+  }
+}
+
+function showCopied() {
+  const badge = document.getElementById("copiedBadge");
+  badge.style.display = "block";
+  setTimeout(() => badge.style.display = "none", 3000);
+}
+
+async function sendToSheet() {
+  const raw = document.getElementById("jsonInput").value.trim();
+  if (!raw) { alert("JSONを貼り付けてください"); return; }
+
+  let parsed;
+  try {
+    const clean = raw.replace(/```json|```/g, "").trim();
+    parsed = JSON.parse(clean);
+  } catch(e) {
+    alert("JSONの形式が正しくありません。\nClaudeの返答をそのままコピーして貼り付けてください。");
+    return;
+  }
+
+  document.getElementById("statusWrap").style.display = "block";
+  document.getElementById("successBox").style.display = "none";
+  setStatus(1, "run", "データを確認中...");
+  setStatus(2, "wait", "スプレッドシートへの書き込み待機中");
+  document.getElementById("sendBtn").disabled = true;
+
+  const rowCount = parsed.rows ? parsed.rows.length - 1 : 0;
+  setStatus(1, "ok", `<b>データ確認完了</b> — ${rowCount}件のデータを検出`);
+  setStatus(2, "run", "スプレッドシートに書き込み中...");
+
+  try {
+    await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify(parsed),
+      mode: "no-cors"
+    });
+
+    setStatus(2, "ok", "<b>書き込み完了！</b>");
+    document.getElementById("successBox").style.display = "block";
+    const label = currentTab === "menu" ? "献立表" : "介護記録";
+    document.getElementById("successDetail").textContent = `「${label}」シートに${rowCount}件追記しました`;
+    document.getElementById("jsonInput").value = "";
+
+  } catch(err) {
+    setStatus(2, "err", "エラー: " + err.message);
+  }
+
+  document.getElementById("sendBtn").disabled = false;
+}
+
+function setStatus(num, state, html) {
+  const dot = document.getElementById("dot" + num);
+  const msg = document.getElementById("msg" + num);
+  dot.className = "dot dot-" + state;
+  msg.innerHTML = html;
+}
+
+switchTab("menu");
+</script>
+</body>
+</html>
